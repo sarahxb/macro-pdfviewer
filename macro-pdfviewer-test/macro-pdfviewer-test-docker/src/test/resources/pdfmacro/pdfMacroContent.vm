@@ -20,11 +20,6 @@
 
 {{pdfviewer file="PDFTest.pdf"/}}
 
-
-{{pdfviewer file="PDFTest.pdf" height="200"/}}
-
-
 {{pdfviewer file="PDFTest.pdf" height="500" width="50%"/}}
-
 
 {{pdfviewer file="PDFTest.pdf" asAuthor="1"/}}

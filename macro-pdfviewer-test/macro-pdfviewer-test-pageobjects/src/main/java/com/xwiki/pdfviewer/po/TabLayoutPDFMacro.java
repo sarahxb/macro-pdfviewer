@@ -21,22 +21,35 @@ package com.xwiki.pdfviewer.po;
 
 import java.util.List;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.xwiki.test.ui.po.ViewPage;
+import org.xwiki.test.ui.po.BaseElement;
 
-public class PDFViewerMacroPage extends ViewPage
+public class TabLayoutPDFMacro extends BaseElement
 {
-    @FindBy(css = ".pdfviewer")
-    private List<WebElement> macros;
+    private final WebElement macro;
 
-    public int getPDFViewerMacrosCount()
+    private final WebElement tabs;
+
+    public TabLayoutPDFMacro(WebElement macro, WebElement tabs)
     {
-        return macros.size();
+        this.macro = macro;
+        this.tabs = tabs;
     }
 
-    public PDFViewerMacro getPDFViewer(int index)
+    public void clickTab(int index)
     {
-        return new PDFViewerMacro(macros.get(index));
+        List<WebElement> tabElements = tabs.findElements(By.cssSelector("li a"));
+        tabElements.get(index).click();
+    }
+
+    public boolean isTabActive(int index)
+    {
+
+        List<WebElement> tabElements = tabs.findElements(By.tagName("li"));
+        WebElement tab = tabElements.get(index);
+        String classAttr = tab.getAttribute("class");
+
+        return classAttr != null && classAttr.contains("active");
     }
 }

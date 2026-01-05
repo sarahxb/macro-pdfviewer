@@ -25,18 +25,21 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.xwiki.test.ui.po.ViewPage;
 
-public class PDFViewerMacroPage extends ViewPage
+public class TabLayoutPDFMacroPage extends ViewPage
 {
-    @FindBy(css = ".pdfviewer")
+    @FindBy(css = ".xwikitabpanescontainer")
     private List<WebElement> macros;
+
+    @FindBy(css = ".xwikitabbar")
+    private List<WebElement> tabs;
 
     public int getPDFViewerMacrosCount()
     {
         return macros.size();
     }
 
-    public PDFViewerMacro getPDFViewer(int index)
+    public TabLayoutPDFMacro getPDFViewer(int index)
     {
-        return new PDFViewerMacro(macros.get(index));
+        return new TabLayoutPDFMacro(macros.get(index), tabs.get(index));
     }
 }

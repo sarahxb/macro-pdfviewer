@@ -21,12 +21,10 @@
 {{pdfviewer file="PDFTest-1.pdf,PDFTest-2.pdf,PDFTest-3.pdf"/}}
 
 
-
 {{pdfviewer file="PDFTest-1.pdf,PDFTest-2.pdf,PDFTest-3.pdf" height="200"/}}
-
 
 
 {{pdfviewer file="PDFTest-1.pdf,PDFTest-2.pdf,PDFTest-3.pdf" height="500" width="50%"/}}
 
 
-{{pdfviewer file="PDFTest-1.pdf,PDFTest-2.pdf,PDFTest-3.pdf" asAuthor="1"/}}
+{{pdfviewer file="PDFTest-1.pdf,PDFTest-2.pdf" asAuthor="1"/}}

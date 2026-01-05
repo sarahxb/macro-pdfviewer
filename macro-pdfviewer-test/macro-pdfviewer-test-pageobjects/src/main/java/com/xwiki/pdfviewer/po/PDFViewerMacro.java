@@ -19,6 +19,7 @@
  */
 package com.xwiki.pdfviewer.po;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.xwiki.test.ui.po.BaseElement;
 
@@ -29,5 +30,27 @@ public class PDFViewerMacro extends BaseElement
     public PDFViewerMacro(WebElement macro)
     {
         this.macro = macro;
+    }
+
+    public String getText()
+    {
+
+        getDriver().switchTo().frame(macro);
+        WebElement textLayer = getDriver().findElement(By.cssSelector(".textLayer"));
+
+        String text = textLayer.getText();
+        getDriver().switchTo().defaultContent();
+
+        return text;
+    }
+
+    public String getWidth()
+    {
+        return macro.getAttribute("width").trim();
+    }
+
+    public String getHeight()
+    {
+        return macro.getCssValue("height");
     }
 }

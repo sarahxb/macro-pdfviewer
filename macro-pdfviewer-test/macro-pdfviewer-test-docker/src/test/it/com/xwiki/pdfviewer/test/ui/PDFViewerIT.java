@@ -36,11 +36,17 @@ import org.xwiki.test.docker.junit5.ExtensionOverride;
 import org.xwiki.test.docker.junit5.TestConfiguration;
 import org.xwiki.test.docker.junit5.UITest;
 import org.xwiki.test.ui.TestUtils;
+import org.xwiki.test.ui.po.CreatePagePage;
 import org.xwiki.test.ui.po.ViewPage;
+import org.xwiki.test.ui.po.editor.EditPage;
 
+import com.xwiki.pdfviewer.po.PDFViewerMacro;
 import com.xwiki.pdfviewer.po.PDFViewerMacroPage;
+import com.xwiki.pdfviewer.po.TabLayoutPDFMacro;
+import com.xwiki.pdfviewer.po.TabLayoutPDFMacroPage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @UITest(extensionOverrides = { @ExtensionOverride(extensionId = "com.google.code.findbugs:jsr305", overrides = {
     "features=com.google.code.findbugs:annotations" }),
@@ -50,6 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "features=org.bouncycastle:bcpkix-jdk15on" }),
     @ExtensionOverride(extensionId = "org.bouncycastle:bcmail-jdk18on", overrides = {
         "features=org.bouncycastle:bcmail-jdk15on" }) })
+
 public class PDFViewerIT
 {
     @BeforeAll
@@ -60,34 +67,98 @@ public class PDFViewerIT
 
     @Test
     @Order(1)
-    void createPDF(TestUtils setup, TestConfiguration testConfiguration)
+    void pdfAttachedToCurrentPageTest(TestUtils setup, TestConfiguration testConfiguration)
     {
-        createPage(setup, getMacroContent("pdfMacroContent.vm"), "PageWithUploadedPDF");
+        createPage(setup, getMacroContent("pdfMacroContent.vm"), "pdfAttachedToCurrentPageTest");
 
         uploadFile("PDFTest.pdf", testConfiguration);
         PDFViewerMacroPage page = new PDFViewerMacroPage();
         page.reloadPage();
 
-        //setup.getDriver().waitUntilCondition(driver->(page.getPDFViewerMacrosCount())==4);
-        assertEquals(4, page.getPDFViewerMacrosCount(), 60000);
-        setup.getDriver().waitUntilPageIsReloaded();
-//        PDFViewerMacro viewer0 = page.getPDFViewer(0);
-//        PDFViewerMacro viewer1 = page.getPDFViewer(1);
-//        PDFViewerMacro viewer2 = page.getPDFViewer(2);
-//        PDFViewerMacro viewer3 = page.getPDFViewer(3);
+        assertEquals(3, page.getPDFViewerMacrosCount());
 
+        PDFViewerMacro viewer0 = page.getPDFViewer(0);
+        assertEquals("100%", viewer0.getWidth());
+        assertEquals("1000px", viewer0.getHeight());
+        assertEquals("PDF file for testing the pdf viewer macro.", viewer0.getText());
+
+        PDFViewerMacro viewer1 = page.getPDFViewer(1);
+        assertEquals("50%", viewer1.getWidth());
+        assertEquals("500px", viewer1.getHeight());
+        assertEquals("PDF file for testing the pdf viewer macro.", viewer1.getText());
+
+        PDFViewerMacro viewer2 = page.getPDFViewer(2);
+        assertEquals("100%", viewer2.getWidth());
+        assertEquals("1000px", viewer2.getHeight());
+        assertEquals("PDF file for testing the pdf viewer macro.", viewer2.getText());
     }
 
     @Test
     @Order(2)
-    void createPageWithMultiplePDFs(TestUtils setup, TestConfiguration testConfiguration)
+    void pdfAttachedToAnotherPageTest(TestUtils setup, TestConfiguration testConfiguration) throws Exception
     {
-        createPage(setup, getMacroContent("multiplePDFs.vm"), "PageWithMultiplePDFs");
-
+        createPage(setup, "normal page with a pdf attached", "PageWithAttachedPDF");
         uploadFile("PDFTest.pdf", testConfiguration);
+
+        createPage(setup, "{{pdfviewer file=\"PDFTest.pdf\" document=\"PDFViewerMacro.PageWithAttachedPDF\"/}}",
+            "pdfAttachedToAnotherPageTest");
+
+        PDFViewerMacroPage page = new PDFViewerMacroPage();
+
+        assertEquals(1, page.getPDFViewerMacrosCount());
+        PDFViewerMacro viewer0 = page.getPDFViewer(0);
+        assertEquals("PDF file for testing the pdf viewer macro.", viewer0.getText());
+    }
+
+    @Test
+    @Order(3)
+    void pdfAttachedToTerminalPageTest(TestUtils setup, TestConfiguration testConfiguration) throws Exception
+    {
+        createTerminalPageWithPDFAttached(setup, testConfiguration);
+        createPage(setup, "{{pdfviewer file=\"PDFTest.pdf\" document=\"PDFViewerMacro.TerminalPageWithPDF\"/}}",
+            "pdfAttachedToTerminalPageTest");
+        PDFViewerMacroPage page = new PDFViewerMacroPage();
+
+        assertEquals(1, page.getPDFViewerMacrosCount());
+        PDFViewerMacro viewer0 = page.getPDFViewer(0);
+        assertEquals("PDF file for testing the pdf viewer macro.", viewer0.getText());
+    }
+
+    @Test
+    @Order(4)
+    void tabLayoutTest(TestUtils setup, TestConfiguration testConfiguration)
+    {
+        createPage(setup, getMacroContent("multiplePDFs.vm"), "tabLayoutTest");
+
         uploadFile("PDFTest-1.pdf", testConfiguration);
         uploadFile("PDFTest-2.pdf", testConfiguration);
         uploadFile("PDFTest-3.pdf", testConfiguration);
+
+        TabLayoutPDFMacroPage page = new TabLayoutPDFMacroPage();
+        page.reloadPage();
+        assertEquals(4, page.getPDFViewerMacrosCount());
+        TabLayoutPDFMacro viewer0 = page.getPDFViewer(0);
+
+        viewer0.isTabActive(0);
+
+        viewer0.clickTab(1);
+        assertTrue(setup.getDriver().getCurrentUrl().contains("file=PDFTest-2.pdf"));
+    }
+
+    private void createTerminalPageWithPDFAttached(TestUtils setup, TestConfiguration testConfiguration)
+        throws Exception
+    {
+        DocumentReference documentReference = new DocumentReference("xwiki", "PDFViewerMacro", "TerminalPageWithPDF");
+        setup.deletePage(documentReference);
+
+        ViewPage viewPage = setup.gotoPage(documentReference);
+        CreatePagePage cpage = viewPage.createPage();
+        cpage.setTerminalPage(true);
+        cpage.clickCreate();
+        EditPage ep = new EditPage();
+        ep.clickSaveAndView();
+        setup.attachFile(documentReference, "PDFTest.pdf", getClass().getResourceAsStream("/pdfmacro/PDFTest.pdf"),
+            false);
     }
 
     private void uploadFile(String attachmentName, TestConfiguration testConfiguration)
