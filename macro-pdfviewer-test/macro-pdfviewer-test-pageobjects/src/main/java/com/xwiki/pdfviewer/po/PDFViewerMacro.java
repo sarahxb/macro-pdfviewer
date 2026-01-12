@@ -19,6 +19,9 @@
  */
 package com.xwiki.pdfviewer.po;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.xwiki.test.ui.po.BaseElement;
@@ -52,5 +55,20 @@ public class PDFViewerMacro extends BaseElement
     public String getHeight()
     {
         return macro.getCssValue("height");
+    }
+
+    public String getLink()
+    {
+        WebElement link = macro.findElement(By.cssSelector(".src"));
+        link.click();
+        return link.getAttribute("src");
+    }
+
+    public String getPdfUrl()
+    {
+        String src = macro.getAttribute("src");
+
+        String encodedPdf = src.split("file=")[1].split("&")[0];
+        return URLDecoder.decode(encodedPdf, StandardCharsets.UTF_8);
     }
 }

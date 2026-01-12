@@ -145,6 +145,25 @@ public class PDFViewerIT
         assertTrue(setup.getDriver().getCurrentUrl().contains("file=PDFTest-2.pdf"));
     }
 
+    @Test
+    @Order(5)
+    void externalPDFTest(TestUtils setup, TestConfiguration testConfiguration) throws Exception
+    {
+        createPage(setup, "normal page with a pdf attached", "NormalPageWithPDF");
+        uploadFile("PDFTest.pdf", testConfiguration);
+
+        String externalLink = getModifiedURL(setup.getDriver().getCurrentUrl(),
+            "download/PDFViewerMacro/NormalPageWithPDF/PDFTest.pdf?rev=1.1");
+        String content = "{{pdfviewer file=\"" + externalLink + "\"/}}";
+
+        createPage(setup, content, "PageWithExternalPDFTest");
+        PDFViewerMacroPage page = new PDFViewerMacroPage();
+        PDFViewerMacro viewer0 = page.getPDFViewer(0);
+
+        assertTrue(viewer0.getPdfUrl().contains("PDFTest.pdf"));
+        assertTrue(viewer0.getPdfUrl().contains("PDFViewerMacro/NormalPageWithPDF"));
+    }
+
     private void createTerminalPageWithPDFAttached(TestUtils setup, TestConfiguration testConfiguration)
         throws Exception
     {
@@ -188,5 +207,14 @@ public class PDFViewerIT
         } catch (IOException e) {
             throw new RuntimeException("Failed to read macro file: " + filename, e);
         }
+    }
+
+    private String getModifiedURL(String url, String newString)
+    {
+        int index = url.indexOf("bin/");
+        if (index == -1) {
+            return url;
+        }
+        return url.substring(0, index + 4) + newString;
     }
 }
