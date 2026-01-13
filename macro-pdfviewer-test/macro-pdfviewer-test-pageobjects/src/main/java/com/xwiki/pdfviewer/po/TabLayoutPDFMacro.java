@@ -19,6 +19,7 @@
  */
 package com.xwiki.pdfviewer.po;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.By;
@@ -43,13 +44,55 @@ public class TabLayoutPDFMacro extends BaseElement
         tabElements.get(index).click();
     }
 
-    public boolean isTabActive(int index)
+    public int getActiveTab()
     {
-
         List<WebElement> tabElements = tabs.findElements(By.tagName("li"));
-        WebElement tab = tabElements.get(index);
-        String classAttr = tab.getAttribute("class");
+        for (int i = 0; i < tabElements.size(); i++) {
+            String classes = tabElements.get(i).getAttribute("class");
+            if (classes != null && classes.contains("active")) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
-        return classAttr != null && classAttr.contains("active");
+    public String getTabHref(int index)
+    {
+        List<WebElement> tabLinks = tabs.findElements(By.cssSelector("li a"));
+        return tabLinks.get(index).getAttribute("href");
+    }
+
+    public String getTabName(int index)
+    {
+        List<WebElement> tabLinks = tabs.findElements(By.cssSelector("li a"));
+        return tabLinks.get(index).getText().trim();
+    }
+
+    public String getText()
+    {
+        WebElement iframe = macro.findElement(By.cssSelector("iframe.pdfviewer"));
+        getDriver().switchTo().frame(iframe);
+
+        try {
+            WebElement textLayer = getDriver().findElement(By.cssSelector(".textLayer"));
+            return textLayer.getText().trim();
+        } finally {
+            getDriver().switchTo().defaultContent();
+        }
+    }
+
+    public List<WebElement> getTabs()
+    {
+        return tabs.findElements(By.tagName("li"));
+    }
+
+    public List<String> getTabsNames()
+    {
+        List<String> names = new ArrayList<>();
+        for (WebElement tab : getTabs()) {
+            WebElement link = tab.findElement(By.tagName("a"));
+            names.add(link.getText().trim());
+        }
+        return names;
     }
 }

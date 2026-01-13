@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -138,11 +139,36 @@ public class PDFViewerIT
         page.reloadPage();
         assertEquals(4, page.getPDFViewerMacrosCount());
         TabLayoutPDFMacro viewer0 = page.getPDFViewer(0);
+        assertEquals(3, viewer0.getTabs().size());
+        assertEquals(Arrays.asList("PDFTest-1.pdf", "PDFTest-2.pdf", "PDFTest-3.pdf"), viewer0.getTabsNames());
 
-        viewer0.isTabActive(0);
-
+        int activeTab = viewer0.getActiveTab();
+        assertEquals(0, activeTab);
+        assertEquals("PDFTest-1.pdf", viewer0.getTabName(activeTab));
+        assertTrue(viewer0.getTabHref(activeTab).contains("PDFTest-1.pdf"));
+        assertEquals("PDF file for testing the pdf viewer macro-1.", viewer0.getText());
         viewer0.clickTab(1);
+
         assertTrue(setup.getDriver().getCurrentUrl().contains("file=PDFTest-2.pdf"));
+        TabLayoutPDFMacroPage page2 = new TabLayoutPDFMacroPage();
+        TabLayoutPDFMacro viewer1 = page2.getPDFViewer(0);
+
+        activeTab = viewer1.getActiveTab();
+        assertEquals(1, activeTab);
+        assertEquals("PDFTest-2.pdf", viewer1.getTabName(activeTab));
+        assertTrue(viewer1.getTabHref(activeTab).contains("PDFTest-2.pdf"));
+        assertEquals("PDF file for testing the pdf viewer macro-2.", viewer1.getText());
+        viewer1.clickTab(2);
+
+        assertTrue(setup.getDriver().getCurrentUrl().contains("file=PDFTest-3.pdf"));
+        TabLayoutPDFMacroPage page3 = new TabLayoutPDFMacroPage();
+        TabLayoutPDFMacro viewer2 = page3.getPDFViewer(0);
+
+        activeTab = viewer2.getActiveTab();
+        assertEquals(2, activeTab);
+        assertEquals("PDFTest-3.pdf", viewer2.getTabName(activeTab));
+        assertTrue(viewer2.getTabHref(activeTab).contains("PDFTest-3.pdf"));
+        assertEquals("PDF file for testing the pdf viewer macro-3.", viewer2.getText());
     }
 
     @Test
