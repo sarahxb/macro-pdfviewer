@@ -63,13 +63,6 @@ public class PDFViewerMacro extends BaseElement
         return macro.getCssValue("height");
     }
 
-    public String getLink()
-    {
-        WebElement link = macro.findElement(By.cssSelector(".src"));
-        link.click();
-        return link.getAttribute("src");
-    }
-
     public String getPdfUrl()
     {
         String src = macro.getAttribute("src");
