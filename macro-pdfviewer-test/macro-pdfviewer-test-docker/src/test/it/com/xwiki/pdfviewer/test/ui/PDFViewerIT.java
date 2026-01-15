@@ -64,13 +64,15 @@ public class PDFViewerIT
     void beforeAll(TestUtils testUtils)
     {
         testUtils.loginAsSuperAdmin();
+        testUtils.createUser("UserTest", "UserTest", "", "company", "xwiki");
     }
 
     @Test
     @Order(1)
     void pdfAttachedToCurrentPageTest(TestUtils setup, TestConfiguration testConfiguration)
     {
-        createPage(setup, getMacroContent("pdfMacroContent.vm"), "pdfAttachedToCurrentPageTest");
+        // Checks that the macro works when the pdf is attached to the current page file="PDFTest.pdf".
+        createPage(setup, getMacroContent("macroContent.vm"), "pdfAttachedToCurrentPageTest");
 
         uploadFile("PDFTest.pdf", testConfiguration);
         PDFViewerMacroPage page = new PDFViewerMacroPage();
@@ -87,17 +89,14 @@ public class PDFViewerIT
         assertEquals("50%", viewer1.getWidth());
         assertEquals("500px", viewer1.getHeight());
         assertEquals("PDF file for testing the pdf viewer macro.", viewer1.getText());
-
-        PDFViewerMacro viewer2 = page.getPDFViewer(2);
-        assertEquals("100%", viewer2.getWidth());
-        assertEquals("1000px", viewer2.getHeight());
-        assertEquals("PDF file for testing the pdf viewer macro.", viewer2.getText());
     }
 
     @Test
     @Order(2)
-    void pdfAttachedToAnotherPageTest(TestUtils setup, TestConfiguration testConfiguration) throws Exception
+    void pdfAttachedToAnotherPageTest(TestUtils setup, TestConfiguration testConfiguration)
     {
+        // Checks that the macro works when the pdf is attached to another page and the "document" parameter is
+        // used.
         createPage(setup, "normal page with a pdf attached", "PageWithAttachedPDF");
         uploadFile("PDFTest.pdf", testConfiguration);
 
@@ -115,6 +114,8 @@ public class PDFViewerIT
     @Order(3)
     void pdfAttachedToTerminalPageTest(TestUtils setup, TestConfiguration testConfiguration) throws Exception
     {
+        // Checks that the macro works when the pdf is attached to another page, which is terminal, and the
+        // "document" parameter is used.
         createTerminalPageWithPDFAttached(setup, testConfiguration);
         createPage(setup, "{{pdfviewer file=\"PDFTest.pdf\" document=\"PDFViewerMacro.TerminalPageWithPDF\"/}}",
             "pdfAttachedToTerminalPageTest");
@@ -129,7 +130,8 @@ public class PDFViewerIT
     @Order(4)
     void tabLayoutTest(TestUtils setup, TestConfiguration testConfiguration)
     {
-        createPage(setup, getMacroContent("multiplePDFs.vm"), "tabLayoutTest");
+        // Checks that the macro works when the tab layout is used file="PDFTest-1.pdf,PDFTest-2.pdf,PDFTest-3.pdf".
+        createPage(setup, getMacroContent("tabLayout.vm"), "tabLayoutTest");
 
         uploadFile("PDFTest-1.pdf", testConfiguration);
         uploadFile("PDFTest-2.pdf", testConfiguration);
@@ -137,16 +139,39 @@ public class PDFViewerIT
 
         TabLayoutPDFMacroPage page = new TabLayoutPDFMacroPage();
         page.reloadPage();
-        assertEquals(4, page.getPDFViewerMacrosCount());
+        // Check that there are 3 macros on the page.
+        assertEquals(3, page.getPDFViewerMacrosCount());
+
         TabLayoutPDFMacro viewer0 = page.getPDFViewer(0);
+
+        // Check that the 1st macro has 3 tabs (3 pdfs).
         assertEquals(3, viewer0.getTabs().size());
         assertEquals(Arrays.asList("PDFTest-1.pdf", "PDFTest-2.pdf", "PDFTest-3.pdf"), viewer0.getTabsNames());
 
         int activeTab = viewer0.getActiveTab();
+
+        // Checks that the default active tab is the first one.
         assertEquals(0, activeTab);
         assertEquals("PDFTest-1.pdf", viewer0.getTabName(activeTab));
         assertTrue(viewer0.getTabHref(activeTab).contains("PDFTest-1.pdf"));
+
+        // Checks that the corresponding text is visible.
         assertEquals("PDF file for testing the pdf viewer macro-1.", viewer0.getText());
+
+        // Checks the default height and width.
+        assertEquals("1000", viewer0.getHeight());
+        assertEquals("100%", viewer0.getWidth());
+
+        // Checks the 2nd macro's number of tabs and their names.
+        TabLayoutPDFMacro viewer3 = page.getPDFViewer(1);
+        assertEquals(2, viewer3.getTabs().size());
+        assertEquals(Arrays.asList("PDFTest-1.pdf", "PDFTest-2.pdf"), viewer3.getTabsNames());
+
+        int activeTab2 = viewer3.getActiveTab();
+        assertEquals(0, activeTab2);
+        assertEquals("500", viewer3.getHeight());
+        assertEquals("50%", viewer3.getWidth());
+
         viewer0.clickTab(1);
 
         assertTrue(setup.getDriver().getCurrentUrl().contains("file=PDFTest-2.pdf"));
@@ -158,6 +183,15 @@ public class PDFViewerIT
         assertEquals("PDFTest-2.pdf", viewer1.getTabName(activeTab));
         assertTrue(viewer1.getTabHref(activeTab).contains("PDFTest-2.pdf"));
         assertEquals("PDF file for testing the pdf viewer macro-2.", viewer1.getText());
+
+        TabLayoutPDFMacro viewer4 = page2.getPDFViewer(1);
+        assertEquals(1, viewer4.getActiveTab());
+
+        TabLayoutPDFMacro viewer6 = page2.getPDFViewer(2);
+        assertEquals(3, viewer6.getTabs().size());
+        assertEquals(Arrays.asList("PDFTest-1.pdf", "PDFTest-3.pdf", "PDFTest-2.pdf"), viewer6.getTabsNames());
+        assertEquals(2, viewer6.getActiveTab());
+
         viewer1.clickTab(2);
 
         assertTrue(setup.getDriver().getCurrentUrl().contains("file=PDFTest-3.pdf"));
@@ -169,11 +203,14 @@ public class PDFViewerIT
         assertEquals("PDFTest-3.pdf", viewer2.getTabName(activeTab));
         assertTrue(viewer2.getTabHref(activeTab).contains("PDFTest-3.pdf"));
         assertEquals("PDF file for testing the pdf viewer macro-3.", viewer2.getText());
+
+        TabLayoutPDFMacro viewer5 = page3.getPDFViewer(1);
+        assertEquals(-1, viewer5.getActiveTab());
     }
 
     @Test
     @Order(5)
-    void externalPDFTest(TestUtils setup, TestConfiguration testConfiguration) throws Exception
+    void externalPDFTest(TestUtils setup, TestConfiguration testConfiguration)
     {
         createPage(setup, "normal page with a pdf attached", "NormalPageWithPDF");
         uploadFile("PDFTest.pdf", testConfiguration);
@@ -188,6 +225,24 @@ public class PDFViewerIT
 
         assertTrue(viewer0.getPdfUrl().contains("PDFTest.pdf"));
         assertTrue(viewer0.getPdfUrl().contains("PDFViewerMacro/NormalPageWithPDF"));
+    }
+
+    @Test
+    @Order(6)
+    void asAuthorTest(TestUtils setup, TestConfiguration testConfiguration) throws Exception
+    {
+        DocumentReference documentReference = new DocumentReference("xwiki", "PDFViewerMacro", "PDFNoRights");
+        setup.createPage(documentReference, "no view rights for UserTest", "PDFNoRights");
+        setup.attachFile(documentReference, "PDFTest.pdf", getClass().getResourceAsStream("/pdfmacro/PDFTest.pdf"),
+            false);
+        setup.setRights(documentReference, "XWiki.XWikiAllGroup", "UserTest", "view", false);
+
+        createPage(setup, getMacroContent("asAuthor.vm"), "asAuthorTest");
+
+        setup.login("UserTest", "UserTest");
+        setup.gotoPage("PDFViewerMacro", "asAuthorTest");
+
+        setup.loginAsSuperAdmin();
     }
 
     private void createTerminalPageWithPDFAttached(TestUtils setup, TestConfiguration testConfiguration)

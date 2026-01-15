@@ -70,7 +70,7 @@ public class TabLayoutPDFMacro extends BaseElement
 
     public String getText()
     {
-        WebElement iframe = macro.findElement(By.cssSelector("iframe.pdfviewer"));
+        WebElement iframe = getIFrame();
         getDriver().switchTo().frame(iframe);
 
         try {
@@ -79,6 +79,16 @@ public class TabLayoutPDFMacro extends BaseElement
         } finally {
             getDriver().switchTo().defaultContent();
         }
+    }
+
+    public String getHeight()
+    {
+        return getIFrame().getAttribute("height");
+    }
+
+    public String getWidth()
+    {
+        return getIFrame().getAttribute("width").trim();
     }
 
     public List<WebElement> getTabs()
@@ -94,5 +104,10 @@ public class TabLayoutPDFMacro extends BaseElement
             names.add(link.getText().trim());
         }
         return names;
+    }
+
+    private WebElement getIFrame()
+    {
+        return macro.findElement(By.cssSelector("iframe.pdfviewer"));
     }
 }
