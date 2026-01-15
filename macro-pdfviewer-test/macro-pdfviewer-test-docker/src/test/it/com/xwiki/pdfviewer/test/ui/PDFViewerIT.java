@@ -176,8 +176,8 @@ public class PDFViewerIT
         assertEquals(2, viewer3.getTabs().size());
         assertEquals(Arrays.asList("PDFTest-1.pdf", "PDFTest-2.pdf"), viewer3.getTabsNames());
 
-        // Checks that the 2nd macro's active tab is the first one. You can't have different tabs active if you have
-        // multiple PDF Viewer macros on the same page.
+        // Checks that the 2nd macro's active tab is the first one. There can't be different pdfs shown at the same
+        // time if you have multiple PDF Viewer macros on the same page.
         int activeTab2 = viewer3.getActiveTab();
         assertEquals(0, activeTab2);
 
@@ -212,7 +212,8 @@ public class PDFViewerIT
         assertEquals(3, viewer6.getTabs().size());
         assertEquals(Arrays.asList("PDFTest-1.pdf", "PDFTest-3.pdf", "PDFTest-2.pdf"), viewer6.getTabsNames());
 
-        // Checks that the shown pdf is the same one as in the first and second macro, even if it's not in the same tab.
+        // Checks that the shown pdf is the same one as in the first and second macro, even if it's not in the same
+        // tab (different order).
         assertEquals(2, viewer6.getActiveTab());
         assertEquals("PDF file for testing the pdf viewer macro-2.", viewer6.getText());
 
