@@ -25,6 +25,12 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.xwiki.test.ui.po.ViewPage;
 
+/**
+ * Represents a page containing one or more PDF Viewer macros.
+ *
+ * @version $Id$
+ * @since 2.6.3
+ */
 public class PDFViewerMacroPage extends ViewPage
 {
     @FindBy(css = ".pdfviewer")

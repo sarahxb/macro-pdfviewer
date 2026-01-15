@@ -29,10 +29,8 @@
     <artifactId>macro-pdfviewer</artifactId>
     <version>2.6.3-SNAPSHOT</version>
   </parent>
-
   <packaging>pom</packaging>
   <artifactId>macro-pdfviewer-test</artifactId>
-
   <properties>
     <!-- Don't run CLIRR or Revapi in test modules since we don't care about backward compatibility for tests -->
     <xwiki.clirr.skip>true</xwiki.clirr.skip>

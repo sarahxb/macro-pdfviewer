@@ -28,11 +28,8 @@
     <groupId>com.xwiki.pdfviewer</groupId>
     <artifactId>macro-pdfviewer</artifactId>
     <version>2.6.3-SNAPSHOT</version>
-<!--    <relativePath>../../pom.xml</relativePath>-->
   </parent>
-
   <artifactId>macro-pdfviewer-test-docker</artifactId>
-
   <properties>
     <xwiki.surefire.captureconsole.skip>true</xwiki.surefire.captureconsole.skip>
   </properties>
@@ -68,18 +65,6 @@
       <version>${platform.version}</version>
       <scope>test</scope>
     </dependency>
-    <!-- Remove when licensing application has the parent to 14.10. -->
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-model-api</artifactId>
-      <version>${platform.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.commons</groupId>
-      <artifactId>xwiki-commons-extension-api</artifactId>
-      <version>${commons.version}</version>
-    </dependency>
-    <!-- Remove to here -->
     <dependency>
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-platform-component-wiki</artifactId>

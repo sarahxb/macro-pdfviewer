@@ -26,6 +26,12 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.xwiki.test.ui.po.BaseElement;
 
+/**
+ * Represents a PDF Viewer macro that uses the tab layout and provides access to its attributes.
+ *
+ * @version $Id$
+ * @since 2.6.3
+ */
 public class TabLayoutPDFMacro extends BaseElement
 {
     private final WebElement macro;
