@@ -71,7 +71,7 @@ public class TabLayoutPDFMacro extends BaseElement
     public String getTabName(int index)
     {
         List<WebElement> tabLinks = tabs.findElements(By.cssSelector("li a"));
-        return tabLinks.get(index).getText().trim();
+        return tabLinks.get(index).getText();
     }
 
     public String getText()
@@ -81,7 +81,7 @@ public class TabLayoutPDFMacro extends BaseElement
 
         try {
             WebElement textLayer = getDriver().findElement(By.cssSelector(".textLayer"));
-            return textLayer.getText().trim();
+            return textLayer.getText();
         } finally {
             getDriver().switchTo().defaultContent();
         }
@@ -107,7 +107,7 @@ public class TabLayoutPDFMacro extends BaseElement
         List<String> names = new ArrayList<>();
         for (WebElement tab : getTabs()) {
             WebElement link = tab.findElement(By.tagName("a"));
-            names.add(link.getText().trim());
+            names.add(link.getText());
         }
         return names;
     }
