@@ -34,7 +34,7 @@ public class AllIT
 {
     @Nested
     @DisplayName("PDFViewer Tests")
-    class NestedConfluenceMigratorIT extends PDFViewerIT
+    class NestedPDFViewerIT extends PDFViewerIT
     {
     }
 }
